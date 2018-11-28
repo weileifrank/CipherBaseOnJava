@@ -1,5 +1,5 @@
 # Java密码学相关知识梳理
-##ASCII编码
+## ASCII编码
 * ASCII（American Standard Code for Information Interchange，美国信息交换标准代码）是基于拉丁字母的一套电脑编码系统，主要用于显示现代英语和其他西欧语言。。
 * ![Logo](imgs/ascii.jpg)
 * 实例代码:
@@ -17,7 +17,7 @@ public static void main(String[] args) {
         }
 }
 ```
-##凯撒加密
+## 凯撒加密
 * 恺撒密码（Caesar cipher）是一种相传尤利乌斯·恺撒曾使用过的密码。恺撒于公元前100年左右诞生于古罗马，是一位著名的军事统帅。
 * 恺撤密码是通过将明文中所使用的字母表按照一定的字数“平移”来进行加密的
 * ![Logo](imgs/i002.jpg)
