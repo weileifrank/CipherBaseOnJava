@@ -334,3 +334,193 @@ public class AESDemo {
 }
 
 ```
+
+## 非对称加密
+
+### 1.  对称加密的弊端
+
+- 秘钥分发困难
+
+- 可以通过非对称加密完成秘钥的分发
+
+  > https
+  >
+  > Alice 和 Bob通信, Alice给bob发送数据, 使用对称加密的方式
+  >
+  > 1. 生成一个非对称的秘钥对, bob生成
+  > 2. bob将公钥发送给alice
+  > 3. alice生成一个用于对称加密的秘钥
+  > 4. alice使用bob的公钥就对称加密的秘钥进行加密, 并且发送给bob
+  > 5. bob使用私钥就数据解密, 得到对称加密的秘钥
+  > 6. 通信的双方使用写好的秘钥进行对称加密数据加密
+
+### 2. 非对称加密的秘钥
+
+- 不存在秘钥分发困难的问题
+
+#### 2.1 场景分析
+
+数据对谁更重要, 谁就拿私钥
+
+- 直观上看: 私钥比公钥长
+- 使用第三方工具生成密钥对: 公钥文件xxx.pub xxx 
+
+> 1. 通信流程, 信息加密  （A写数据, 发送给B, 信息只允许B读）
+>
+>    A: 公钥
+>
+>    B: 私钥
+>
+> 2. 登录认证 （客户端要登录, 连接服务器, 向服务器请求个人数据）
+>
+>    客户端:  私钥
+>
+>    服务器:  公钥
+>
+> 3. 数字签名（表明信息没有受到伪造，确实是信息拥有者发出来的，附在信息原文的后面）
+>
+>    - 发送信息的人:   私钥
+>    - 收到信息的人:   公钥
+>
+> 4. 网银U盾
+>
+>    - 个人: 私钥
+>    - 银行拿公钥
+
+### 3. 使用RSA非对称加密通信流程
+
+> 要求: Alice 给 bob发送数据, 保证数据信息只有bob能看到
+
+### 4. 生成RSA的秘钥对
+#### 4.1 一些概念
+
+1. x509证书规范、pem、base64
+   - pem编码规范 - 数据加密
+   - base64 - 对数据编码, 可逆
+     - 不管原始数据是什么, 将原始数据使用64个字符来替代
+       - a-z  A-Z 0-9 + /
+2. ASN.1抽象语法标记
+3. PKCS1标准
+
+### 5. 常见算法
+
+> RSA
+
+> ECC(java需要借助第三方库实现加密解密,我将在另外一个项目中用go实现)
+
+###6 RSA示例代码如下
+   - 注意:经测试在后端使用Cipher.getInstance(“RSA”)加密,在移动端获取解密的Cipher类时要使用Cipher.getInstance(“RSA/ECB/PKCS1Padding”)
+   
+   - 移动端核心代码
+```$java
+  //后端用私钥加密过的数据
+    String eText = "ETLPedgx7vR9E9JGNIj4pLhvurcOM26oo4RgJhmeF5RvDXVdl3qQ+5H6hmUx3dV2K8jPxi5aKSVs1xnjuMgSfK32fjrqzYBULFaBCmnN1HbpcwYFNMA3enWiVwT3TAWFKA9ReJ2DWh0lkCzaHruOmcWCY3f2tjuEE9X9L0DN7m5R9iy2qgEEDPgfzImYYl8wltYdudryz2fQ7UNGdIUPc75EMqdvHEUrxIi5A7cM0BDGQI2aXD+39ijQCOVBtai/9ohF7YXtGmbsocPBKarhe8qpVIcvXza6fBbOWxBC6Z68uRGcljTVkhvNjWrEmRuu5pc3C41bx4OK9FD8kPgITg==";
+    //后端给的公钥
+    String pkey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmpz9g5IX3ElRtXFo2+9nwD4+amqhEH4Rz1FI2cXeSiQeLPfdCoSsflLovdJ21NxvcKGw9IvmjWkLESCVU/pxDeP2UkVXFAjC2KhZvoQO4v0x4Yn3/55bAAQ9O3qoGatjPlDbzr1CEAi+ZA7NY1Oz2TtOSq8Odc7wc3Sq6U1gZBf87w5jq0GwQwgLrQjaVf5oTgKmavyf6g8Uq8U0QnktXCJpJUsSSZdeWTwAhtKk+MDkd5VRHIynLklOgeAhjG7xzEAad/Q32qLGcCwY+ySiZWLZ5q5uZAys4rj98LiwV6zLyk8CYYclUDUtBPLLXDRN8DUEe4uKAucFC4IlkrXQ0wIDAQAB";
+    //获取公钥对象
+    KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+    X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.decode(pkey, Base64.DEFAULT));
+    PublicKey publicKey = keyFactory.generatePublic(spec);
+    //指定解密algorithm = "RSA/ECB/PKCS1Padding"; Cipher cipher = Cipher.getInstance(algorithm);
+    algorithm = "RSA/ECB/PKCS1Padding";
+    String decrypt = RSADemo.RSADecrypt(algorithm, publicKey, eText, 256);
+    System.out.println("decript###" + decrypt + "###");
+```
+   
+ - 后端代码  
+```java
+public class RSADemo {
+    private static int MAX_ENCRIPT_SIZE = 200;
+
+    public static void main(String[] args) throws Exception {
+        String algorithm = "RSA";
+        String input = "frank";
+//        generateKeys(algorithm, "test.pri", "test.pub");
+
+        PrivateKey privateKey = getPrivateKey("test.pri", algorithm);
+        PublicKey publicKey = getPublicKey("test.pub", algorithm);
+
+        String encryptData = RSAEncrypt(algorithm, privateKey, input, MAX_ENCRIPT_SIZE);
+        System.out.println("encryptData=" + encryptData);
+        String decryptData = RSADecrypt(algorithm, publicKey, encryptData, 256);
+        System.out.println("decryptData=" + decryptData);
+
+    }
+
+    public static PrivateKey getPrivateKey(String priPath, String algorithm) throws Exception {
+        String privateKeyString = FileUtils.readFileToString(new File(priPath), Charset.defaultCharset());
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.decode(privateKeyString));
+        return keyFactory.generatePrivate(spec);
+    }
+
+    public static PublicKey getPublicKey(String pubPath, String algorithm) throws Exception {
+        String publicKeyString = FileUtils.readFileToString(new File(pubPath), Charset.defaultCharset());
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.decode(publicKeyString));
+        return keyFactory.generatePublic(spec);
+    }
+
+    public static void generateKeys(String algorithm, String priPath, String pubPath) throws Exception {
+        // 获取密钥对生成器
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
+        // 获取密钥对
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        // 获取公私钥
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+        // 获取公私钥的字节数组
+        byte[] privateKeyEncoded = privateKey.getEncoded();
+        byte[] publicKeyEncoded = publicKey.getEncoded();
+        // 对公私钥进行Base64的编码
+        String privateKeyString = Base64.encode(privateKeyEncoded);
+        String publicKeyString = Base64.encode(publicKeyEncoded);
+
+        FileUtils.writeStringToFile(new File(priPath), privateKeyString, Charset.defaultCharset());
+        FileUtils.writeStringToFile(new File(pubPath), publicKeyString, Charset.defaultCharset());
+    }
+
+    public static String RSAEncrypt(String algorithm, Key key, String input, int maxEncryptSize) throws Exception {
+        Cipher cipher = Cipher.getInstance(algorithm);
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] data = input.getBytes();
+        int total = data.length;
+        int offset = 0;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] bytes;
+        while (total - offset > 0) {
+            if (total - offset >= maxEncryptSize) {
+                bytes = cipher.doFinal(data, offset, maxEncryptSize);
+                offset += maxEncryptSize;
+            } else {
+                bytes = cipher.doFinal(data, offset, total - offset);
+                offset = total;
+            }
+            baos.write(bytes);
+        }
+        return Base64.encode(baos.toByteArray());
+    }
+
+    public static String RSADecrypt(String algorithm, Key key, String input, int maxEncryptSize) throws Exception {
+        Cipher cipher = Cipher.getInstance(algorithm);
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] data = Base64.decode(input);
+        int total = data.length;
+        int offset = 0;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] bytes;
+        while (total - offset > 0) {
+            if (total - offset >= maxEncryptSize) {
+                bytes = cipher.doFinal(data, offset, maxEncryptSize);
+                offset += maxEncryptSize;
+            } else {
+                bytes = cipher.doFinal(data, offset, total - offset);
+                offset = total;
+            }
+            baos.write(bytes);
+        }
+        return baos.toString();
+    }
+
+}
+```
