@@ -24,14 +24,14 @@ public static void main(String[] args) {
 * 凯撒密码加解密公式
   
     - 加密
-  
+    
          ![](imgs/513169b7dcabfc4de6d4fcbc03e613434244e917.svg)
-  
+    
     - 解密
     
         ![](imgs/110911f42b858bdf1bec629ae41b5b88b00859e2.svg)
-      
-  
+    
+
   - 凯撒密码中的加密三要素
     - 明文/密文
       - 明文: 图表上部分的数据
@@ -208,12 +208,12 @@ public static void main(String[] args) {
            - des/3des -> 8字节
            - aes -> 16字节
          - 加解密使用的初始化向量相同
-         
+    
  - DES加密示例代码如下:
     - DES加密,key的大小必须是8个字节
     - 如果没有指定分组密码模式和填充模式,ECB/PKCS5Padding就是默认值
     - 如果指定分组密码模式为CBC,必须指定初始向量,初始向量中密钥的长度必须是8个字节
-    - 如果没有指定填充模式为NoPadding模式,原文的长度必须是8个字节的整倍数
+    - NoPadding模式,原文的长度必须是8个字节的整倍数
  ```$xslt
  public class DESDemo {
      // DES加密算法,key的大小必须是8个字节
@@ -270,12 +270,12 @@ public static void main(String[] args) {
          return new String(bytes);
      }
  }
-```
+ ```
   - AES加密示例代码如下(AES和DES加密高度类似)
      - AES加密,key的大小必须是16个字节
      - 如果没有指定分组密码模式和填充模式,ECB/PKCS5Padding就是默认值
      - 如果没有指定分组密码模式为CBC,必须指定初始向量,初始向量中密钥的长度必须是16个字节
-     - 如果没有指定填充模式为NoPadding模式,原文的长度必须是16个字节的整倍数
+     - NoPadding模式,原文的长度必须是16个字节的整倍数
 ```$xslt
 public class AESDemo {
     // AES加密算法,key的大小必须是16个字节
@@ -426,7 +426,7 @@ public class AESDemo {
     String decrypt = RSADemo.RSADecrypt(algorithm, publicKey, eText, 256);
     System.out.println("decript###" + decrypt + "###");
 ```
-   
+
  - 后端代码  
 ```java
 public class RSADemo {
